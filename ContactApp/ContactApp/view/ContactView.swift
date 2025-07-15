@@ -8,26 +8,20 @@
 import SwiftUI
 
 struct ContactView: View {
-    @State private var demoContacts = [
-        Contact(id: UUID(), name: "Monkey D Luffy", email: "pranav1160@gmail.com", mod: "9798700731"),
-        Contact(id: UUID(), name: "Roronoa Zoro", email: "zoro@onepiece.com", mod: "9876543210"),
-        Contact(id: UUID(), name: "Nami", email: "nami@navigation.com", mod: "9123456789"),
-        Contact(id: UUID(), name: "Sanji Vinsmoke", email: "sanji@cookmail.com", mod: "9001122334"),
-        Contact(id: UUID(), name: "Tony Tony Chopper", email: "chopper@medical.jp", mod: "9812345670"),
-        Contact(id: UUID(), name: "Nico Robin", email: "robin@poneglyph.org", mod: "9977886655")
-    ]
+    
+    @State private var cvm = ContactViewModel()
     
     @State private var searchText:String = ""
     @State private var showAddContactView =  false
     
     private var filteredContact:[Contact]{
         if searchText.isEmpty{
-            return demoContacts
+            return cvm.allContacts
         }
         
-        return demoContacts.filter { contact in
+        return cvm.allContacts.filter { contact in
             
-            contact.name.localizedCaseInsensitiveContains(searchText)
+            contact.fullName.localizedCaseInsensitiveContains(searchText)
         }
     }
     
@@ -37,17 +31,17 @@ struct ContactView: View {
                 ForEach(filteredContact) { contact in
                     NavigationLink {
                         EditContactView(contact: contact)
+                            .environment(cvm)
                     } label: {
                         ContactCell(contact: contact)
                     }
-
-                    
                 }
             }
             .navigationTitle("Contacts")
             .searchable(text: $searchText, prompt: "Search")
             .sheet(isPresented: $showAddContactView) {
                 AddContactView()
+                    .environment(cvm)
                     .presentationDetents([.fraction(0.35)])
                     .presentationDragIndicator(.visible) // or .hidden
 

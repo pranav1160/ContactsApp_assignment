@@ -9,14 +9,19 @@ import Foundation
 
 struct Contact:Identifiable{
     let id:UUID
-    let name:String
-    let email:String
-    let mod:String
+    var fname:String
+    var lname:String
+    var email:String
+    var mod:String
     
     var initials: String{
-        if let firstChar = name.first{
-            return String(firstChar)
+        if let firstChar = fname.first , let secChar = lname.first {
+            return String("\(firstChar)\(secChar)")
         }
-        return "N"
+        return "NA"
+    }
+    
+    var fullName: String{
+        fname+lname
     }
 }

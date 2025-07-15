@@ -6,35 +6,45 @@
 //
 import SwiftUI
 
-
-struct ContactCell:View {
-    let contact:Contact
+struct ContactCell: View {
+    let contact: Contact
+    
     var body: some View {
-        HStack{
-            Text("\(contact.initials)")
-                .font(.largeTitle)
-                .frame(width: 48,height: 48)
+        HStack {
+            Text(contact.initials)
+                .font(.title)
+                .frame(width: 48, height: 48)
                 .background(.gray)
-                .clipShape(.circle)
+                .clipShape(Circle())
             
-            VStack(alignment: .leading){
-                Text("\(contact.name)")
-                HStack{
+            VStack(alignment: .leading) {
+                Text("\(contact.fname) \(contact.lname)")
+                    .font(.headline)
+                
+                HStack {
                     Text("☏")
-//                        .font(.title2)
-                    Text("\(contact.mod)")
+                    Text(contact.mod)
                 }
-               
+                .font(.subheadline)
+                .foregroundColor(.secondary)
             }
-            .padding(.horizontal,10)
+            .padding(.horizontal, 10)
             
             Spacer()
-            
         }
     }
 }
 
+
 #Preview {
-    ContactCell(contact: Contact(id: UUID(), name: "Netero The GOAT", email: "iamwhimsical@gmail.com", mod: "123456789"))
+    ContactCell(
+        contact: Contact(
+            id: UUID(),
+            fname: "Netero",
+            lname: "The GOAT",
+            email: "iamwhimsical@gmail.com",
+            mod: "123456789"
+        )
+    )
         .preferredColorScheme(.dark)
 }

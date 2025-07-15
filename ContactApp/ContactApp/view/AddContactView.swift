@@ -1,45 +1,60 @@
-//
-//  AddContactView.swift
-//  ContactApp
-//
-//  Created by Pranav on 15/07/25.
-//
-
 import SwiftUI
 
 struct AddContactView: View {
     
-    @State private var thisName: String = ""
-    @State private var thisEmail: String = ""
-    @State private var thisMod: String = ""
+    @Environment(\.dismiss) private var dismiss
+    @Environment(ContactViewModel.self) var cvm
+    @State private var firstName: String = ""
+    @State private var lastName: String = ""
+    @State private var email: String = ""
+    @State private var mod: String = ""
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                CustomTextField(placeholder: "Enter Name", text: $thisName)
+            Form {
+                TextField("First Name", text: $firstName)
+                TextField("Last Name", text: $lastName)
                 
-                CustomTextField(placeholder: "Enter Email", text: $thisEmail)
+                TextField("Email", text: $email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                 
-                CustomTextField(placeholder: "Enter Mobile Number", text: $thisMod)
+                TextField("Mobile Number", text: $mod)
                     .keyboardType(.phonePad)
-                
-            
-                
             }
-            .padding()
+            
             .navigationTitle("Add Contact")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        // Add contact logic here
-                        print("Name: \(thisName), Email: \(thisEmail), Mob: \(thisMod)")
-                    }) {
-                        Text("Add")
+                    Button("Add") {
+                        
+                        guard !firstName.isEmpty,
+                              !lastName.isEmpty,
+                              !email.isEmpty,
+                              !mod.isEmpty
+                        else{
+                            return
+                        }
+                        
+                        cvm
+                        .addContact(
+                                Contact(
+                                    id: UUID(),
+                                    fname: firstName,
+                                    lname: lastName,
+                                    email: email,
+                                    mod: mod
+                                )
+                            )
+                        dismiss()
                     }
-                    .buttonStyle(.borderedProminent)
+                }
+                
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
                 }
             }
         }
@@ -49,21 +64,4 @@ struct AddContactView: View {
 #Preview {
     AddContactView()
         .preferredColorScheme(.dark)
-}
-
-
-struct CustomTextField: View {
-    let placeholder: String
-    @Binding var text: String
-    
-    var body: some View {
-        TextField(placeholder, text: $text)
-            .padding(10)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-            )
-    }
 }

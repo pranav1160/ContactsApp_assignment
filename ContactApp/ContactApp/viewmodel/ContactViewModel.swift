@@ -29,11 +29,32 @@ import Foundation
     }
     
     func delContact(_ contact:Contact){
+        let idx = allContacts.firstIndex { thisContact in
+            thisContact.id == contact.id
+        }
+        if let idx = idx{
+            allContacts.remove(at: idx)
+        }
         
     }
     
     func updateContact(_ contact:Contact){
-        
+        let idx = allContacts.firstIndex { thisContact in
+            thisContact.id == contact.id
+        }
+        if let idx = idx{
+            allContacts[idx] = contact
+        }
     }
     
+    func searchResults(txt : String) -> [Contact] {
+        guard !txt.isEmpty else {return allContacts}
+        
+        return allContacts.filter {
+            $0.fname.localizedCaseInsensitiveContains(txt) ||
+            $0.lname.localizedCaseInsensitiveContains(txt) ||
+            $0.email.localizedCaseInsensitiveContains(txt) ||
+            $0.mod.localizedCaseInsensitiveContains(txt)
+        }
+    }
 }

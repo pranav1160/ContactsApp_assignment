@@ -14,21 +14,10 @@ struct ContactView: View {
     @State private var searchText:String = ""
     @State private var showAddContactView =  false
     
-    private var filteredContact:[Contact]{
-        if searchText.isEmpty{
-            return cvm.allContacts
-        }
-        
-        return cvm.allContacts.filter { contact in
-            
-            contact.fullName.localizedCaseInsensitiveContains(searchText)
-        }
-    }
-    
     var body: some View {
         NavigationStack {
             List{
-                ForEach(filteredContact) { contact in
+                ForEach(cvm.searchResults(txt: searchText)) { contact in
                     NavigationLink {
                         EditContactView(contact: contact)
                             .environment(cvm)

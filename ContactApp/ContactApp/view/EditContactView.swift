@@ -13,7 +13,6 @@ struct EditContactView: View {
     init(contact: Contact) {
         _contact = State(initialValue: contact)
     }
-    
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -35,6 +34,7 @@ struct EditContactView: View {
             
             Button {
                 cvm.delContact(contact)
+                dismiss()
             } label: {
                 Text("Delete Contact")
                     .frame(width: 350, height: 40)
@@ -76,6 +76,7 @@ struct EditContactView: View {
                 mod: "123456789"
             )
         )
+        .environment(ContactViewModel())
     }
     .preferredColorScheme(.dark)
 }

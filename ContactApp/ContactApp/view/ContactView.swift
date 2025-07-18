@@ -23,9 +23,23 @@ struct ContactView: View {
                             .environment(cvm)
                     } label: {
                         ContactCell(contact: contact)
+                            
+                    }
+                    .swipeActions {
+                        Button{
+                            withAnimation {
+                                cvm.delContact(contact)
+                            }
+                           
+                        }label: {
+                            Image(systemName: "trash")
+                                .tint(.red)
+                        }
                     }
                 }
+             
             }
+            
             .navigationTitle("Contacts")
             .searchable(text: $searchText, prompt: "Search")
             .sheet(isPresented: $showAddContactView) {

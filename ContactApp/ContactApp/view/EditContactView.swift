@@ -10,22 +10,43 @@ import SwiftUI
 struct EditContactView: View {
     @State private var contact: Contact
     @Environment(ContactViewModel.self) var cvm
+    @State private var showDeleteConfirmation = false
+    @State private var showCancelConfirmation = false
+    let cancelAlertTitle = "Are you sure you wanna exit before saving"
+    
+    let originalContact: Contact
+    
     init(contact: Contact) {
         _contact = State(initialValue: contact)
+        originalContact = contact
     }
+    
     @Environment(\.dismiss) private var dismiss
+    
+    var contactDidChange:Bool{
+        originalContact != contact
+    }
     
     var body: some View {
         VStack {
             Form {
-                TextField("Enter First Name", text: $contact.fname)
-                TextField("Enter Last Name", text: $contact.lname)
+                Section("Personal Information") {
+                    TextField("Enter First Name", text: $contact.fname)
+                        .accessibilityLabel("First Name")
+                    
+                    TextField("Enter Last Name", text: $contact.lname)
+                        .accessibilityLabel("Last Name")
+                }
                 
-                TextField("Enter Email", text: $contact.email)
-                    .keyboardType(.emailAddress)
-                
-                TextField("Enter Mobile Number", text: $contact.mod)
-                    .keyboardType(.phonePad)
+                Section("Contact Information") {
+                    TextField("Enter Email", text: $contact.email)
+                        .keyboardType(.emailAddress)
+                        .accessibilityLabel("Email Address")
+                    
+                    TextField("Enter Mobile Number", text: $contact.mod)
+                        .keyboardType(.phonePad)
+                        .accessibilityLabel("Mobile Number")
+                }
             }
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
@@ -33,8 +54,7 @@ struct EditContactView: View {
             Spacer()
             
             Button {
-                cvm.delContact(contact)
-                dismiss()
+                showDeleteConfirmation = true
             } label: {
                 Text("Delete Contact")
                     .frame(width: 350, height: 40)
@@ -43,27 +63,65 @@ struct EditContactView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding()
-            
-            .navigationTitle("Edit Contact")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+            .confirmationDialog(
+                "Delete Contact",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    cvm.delContact(contact)
+                    dismiss()
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Confirm") {
-                        cvm.updateContact(contact)
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to delete this contact? This action cannot be undone.")
+            }
+        }
+        
+        .navigationTitle("Edit Contact")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
+                    if contactDidChange{
+                        showCancelConfirmation = true
+                    }else{
                         dismiss()
                     }
                 }
             }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Save") {
+                    cvm.updateContact(contact)
+                    dismiss()
+                }
+                .disabled(!contactDidChange)
+            }
+        }
+        .alert("Quiting before Saving?", isPresented: $showCancelConfirmation) {
+            Button(role: .destructive){
+                dismiss()
+            }label: {
+                Text("Discard Changes")
+            }
+        }message: {
+            Text(cancelAlertTitle)
+                .font(.caption)
         }
     }
+    
+    // Helper computed properties for validation
+    private var isValidEmail: Bool {
+        contact.email.contains("@") && contact.email.contains(".")
+    }
+    
+    private var isValidPhone: Bool {
+        !contact.mod.isEmpty && contact.mod.allSatisfy { $0.isNumber }
+    }
 }
+
 
 #Preview {
     NavigationStack {
